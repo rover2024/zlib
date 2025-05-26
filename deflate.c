@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'deflate__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 4,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (void *, void *)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+// decl: void *(void *, unsigned int, unsigned int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /* deflate.c -- compress data using the deflation algorithm
  * Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -429,7 +481,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
         return Z_STREAM_ERROR;
     }
     if (windowBits == 8) windowBits = 9;  /* until 256-byte window bug fixed */
-    s = (deflate_state *) ZALLOC(strm, 1, sizeof(deflate_state));
+    s = (deflate_state *) LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (1), (sizeof(deflate_state)));
     if (s == Z_NULL) return Z_MEM_ERROR;
     strm->state = (struct internal_state FAR *)s;
     s->strm = strm;
@@ -446,9 +498,9 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
     s->hash_mask = s->hash_size - 1;
     s->hash_shift =  ((s->hash_bits + MIN_MATCH-1) / MIN_MATCH);
 
-    s->window = (Bytef *) ZALLOC(strm, s->w_size, 2*sizeof(Byte));
-    s->prev   = (Posf *)  ZALLOC(strm, s->w_size, sizeof(Pos));
-    s->head   = (Posf *)  ZALLOC(strm, s->hash_size, sizeof(Pos));
+    s->window = (Bytef *) LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (s->w_size), (2*sizeof(Byte)));
+    s->prev   = (Posf *)  LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (s->w_size), (sizeof(Pos)));
+    s->head   = (Posf *)  LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (s->hash_size), (sizeof(Pos)));
 
     s->high_water = 0;      /* nothing written to s->window yet */
 
@@ -493,7 +545,7 @@ int ZEXPORT deflateInit2_(z_streamp strm, int level, int method,
      * symbols from which it is being constructed.
      */
 
-    s->pending_buf = (uchf *) ZALLOC(strm, s->lit_bufsize, LIT_BUFS);
+    s->pending_buf = (uchf *) LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (s->lit_bufsize), (4));
     s->pending_buf_size = (ulg)s->lit_bufsize * 4;
 
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
@@ -1271,12 +1323,12 @@ int ZEXPORT deflateEnd(z_streamp strm) {
     status = strm->state->status;
 
     /* Deallocate in reverse order of allocations: */
-    TRY_FREE(strm, strm->state->pending_buf);
-    TRY_FREE(strm, strm->state->head);
-    TRY_FREE(strm, strm->state->prev);
-    TRY_FREE(strm, strm->state->window);
+    {if (strm->state->pending_buf) LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state->pending_buf));};
+    {if (strm->state->head) LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state->head));};
+    {if (strm->state->prev) LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state->prev));};
+    {if (strm->state->window) LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state->window));};
 
-    ZFREE(strm, strm->state);
+    LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state));
     strm->state = Z_NULL;
 
     return status == BUSY_STATE ? Z_DATA_ERROR : Z_OK;
@@ -1305,16 +1357,16 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source) {
 
     zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
 
-    ds = (deflate_state *) ZALLOC(dest, 1, sizeof(deflate_state));
+    ds = (deflate_state *) LORELIB_CFI_4((((dest)->zalloc)))((dest)->opaque, (1), (sizeof(deflate_state)));
     if (ds == Z_NULL) return Z_MEM_ERROR;
     dest->state = (struct internal_state FAR *) ds;
     zmemcpy((voidpf)ds, (voidpf)ss, sizeof(deflate_state));
     ds->strm = dest;
 
-    ds->window = (Bytef *) ZALLOC(dest, ds->w_size, 2*sizeof(Byte));
-    ds->prev   = (Posf *)  ZALLOC(dest, ds->w_size, sizeof(Pos));
-    ds->head   = (Posf *)  ZALLOC(dest, ds->hash_size, sizeof(Pos));
-    ds->pending_buf = (uchf *) ZALLOC(dest, ds->lit_bufsize, LIT_BUFS);
+    ds->window = (Bytef *) LORELIB_CFI_4((((dest)->zalloc)))((dest)->opaque, (ds->w_size), (2*sizeof(Byte)));
+    ds->prev   = (Posf *)  LORELIB_CFI_4((((dest)->zalloc)))((dest)->opaque, (ds->w_size), (sizeof(Pos)));
+    ds->head   = (Posf *)  LORELIB_CFI_4((((dest)->zalloc)))((dest)->opaque, (ds->hash_size), (sizeof(Pos)));
+    ds->pending_buf = (uchf *) LORELIB_CFI_4((((dest)->zalloc)))((dest)->opaque, (ds->lit_bufsize), (4));
 
     if (ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
         ds->pending_buf == Z_NULL) {
@@ -2150,3 +2202,9 @@ local block_state deflate_huff(deflate_state *s, int flush) {
         FLUSH_BLOCK(s, 0);
     return block_done;
 }
+
+//
+// Original code end
+//
+
+

@@ -1,3 +1,61 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'infback__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 4,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: int (void *, unsigned char *, unsigned int)
+#define LORELIB_CFI_1(FP) LORELIB_CFI(1, FP)
+
+// decl: unsigned int (void *, unsigned char **)
+#define LORELIB_CFI_2(FP) LORELIB_CFI(2, FP)
+
+// decl: void (void *, void *)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+// decl: void *(void *, unsigned int, unsigned int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /* infback.c -- inflate using a call-back interface
  * Copyright (C) 1995-2022 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -48,8 +106,7 @@ int ZEXPORT inflateBackInit_(z_streamp strm, int windowBits,
 #else
         strm->zfree = zcfree;
 #endif
-    state = (struct inflate_state FAR *)ZALLOC(strm, 1,
-                                               sizeof(struct inflate_state));
+    state = (struct inflate_state FAR *)LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (1), (sizeof(struct inflate_state)));
     if (state == Z_NULL) return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
     strm->state = (struct internal_state FAR *)state;
@@ -283,7 +340,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                 state->mode = DONE;
                 break;
             }
-            NEEDBITS(3);
+            do { while (bits < (unsigned)(3)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
             state->last = BITS(1);
             DROPBITS(1);
             switch (BITS(2)) {
@@ -313,7 +370,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
         case STORED:
             /* get and verify stored block length */
             BYTEBITS();                         /* go to byte boundary */
-            NEEDBITS(32);
+            do { while (bits < (unsigned)(32)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
             if ((hold & 0xffff) != ((hold >> 16) ^ 0xffff)) {
                 strm->msg = (z_const char *)"invalid stored block lengths";
                 state->mode = BAD;
@@ -327,8 +384,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             /* copy stored block from input to output */
             while (state->length != 0) {
                 copy = state->length;
-                PULL();
-                ROOM();
+                do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0);
+                do { if (left == 0) { put = state->window; left = state->wsize; state->whave = left; if (LORELIB_CFI_1(out)(out_desc, put, left)) { ret = (-5); goto inf_leave; } } } while (0);
                 if (copy > have) copy = have;
                 if (copy > left) copy = left;
                 zmemcpy(put, next, copy);
@@ -344,7 +401,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
 
         case TABLE:
             /* get dynamic table entries descriptor */
-            NEEDBITS(14);
+            do { while (bits < (unsigned)(14)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
             state->nlen = BITS(5) + 257;
             DROPBITS(5);
             state->ndist = BITS(5) + 1;
@@ -363,7 +420,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             /* get code length code lengths (not a typo) */
             state->have = 0;
             while (state->have < state->ncode) {
-                NEEDBITS(3);
+                do { while (bits < (unsigned)(3)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                 state->lens[order[state->have++]] = (unsigned short)BITS(3);
                 DROPBITS(3);
             }
@@ -387,7 +444,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                 for (;;) {
                     here = state->lencode[BITS(state->lenbits)];
                     if ((unsigned)(here.bits) <= bits) break;
-                    PULLBYTE();
+                    do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0);
                 }
                 if (here.val < 16) {
                     DROPBITS(here.bits);
@@ -395,7 +452,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                 }
                 else {
                     if (here.val == 16) {
-                        NEEDBITS(here.bits + 2);
+                        do { while (bits < (unsigned)(here.bits + 2)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                         DROPBITS(here.bits);
                         if (state->have == 0) {
                             strm->msg = (z_const char *)"invalid bit length repeat";
@@ -407,14 +464,14 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                         DROPBITS(2);
                     }
                     else if (here.val == 17) {
-                        NEEDBITS(here.bits + 3);
+                        do { while (bits < (unsigned)(here.bits + 3)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                         DROPBITS(here.bits);
                         len = 0;
                         copy = 3 + BITS(3);
                         DROPBITS(3);
                     }
                     else {
-                        NEEDBITS(here.bits + 7);
+                        do { while (bits < (unsigned)(here.bits + 7)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                         DROPBITS(here.bits);
                         len = 0;
                         copy = 11 + BITS(7);
@@ -481,7 +538,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             for (;;) {
                 here = state->lencode[BITS(state->lenbits)];
                 if ((unsigned)(here.bits) <= bits) break;
-                PULLBYTE();
+                do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0);
             }
             if (here.op && (here.op & 0xf0) == 0) {
                 last = here;
@@ -489,7 +546,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                     here = state->lencode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + here.bits) <= bits) break;
-                    PULLBYTE();
+                    do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0);
                 }
                 DROPBITS(last.bits);
             }
@@ -501,7 +558,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                 Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
                         "inflate:         literal '%c'\n" :
                         "inflate:         literal 0x%02x\n", here.val));
-                ROOM();
+                do { if (left == 0) { put = state->window; left = state->wsize; state->whave = left; if (LORELIB_CFI_1(out)(out_desc, put, left)) { ret = (-5); goto inf_leave; } } } while (0);
                 *put++ = (unsigned char)(state->length);
                 left--;
                 state->mode = LEN;
@@ -525,7 +582,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             /* length code -- get extra bits, if any */
             state->extra = (unsigned)(here.op) & 15;
             if (state->extra != 0) {
-                NEEDBITS(state->extra);
+                do { while (bits < (unsigned)(state->extra)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                 state->length += BITS(state->extra);
                 DROPBITS(state->extra);
             }
@@ -535,7 +592,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             for (;;) {
                 here = state->distcode[BITS(state->distbits)];
                 if ((unsigned)(here.bits) <= bits) break;
-                PULLBYTE();
+                do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0);
             }
             if ((here.op & 0xf0) == 0) {
                 last = here;
@@ -543,7 +600,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                     here = state->distcode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + here.bits) <= bits) break;
-                    PULLBYTE();
+                    do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0);
                 }
                 DROPBITS(last.bits);
             }
@@ -558,7 +615,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             /* get distance extra bits, if any */
             state->extra = (unsigned)(here.op) & 15;
             if (state->extra != 0) {
-                NEEDBITS(state->extra);
+                do { while (bits < (unsigned)(state->extra)) do { do { if (have == 0) { have = LORELIB_CFI_2(in)(in_desc, &next); if (have == 0) { next = 0; ret = (-5); goto inf_leave; } } } while (0); have--; hold += (unsigned long)(*next++) << bits; bits += 8; } while (0); } while (0);
                 state->offset += BITS(state->extra);
                 DROPBITS(state->extra);
             }
@@ -572,7 +629,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
 
             /* copy match from window to output */
             do {
-                ROOM();
+                do { if (left == 0) { put = state->window; left = state->wsize; state->whave = left; if (LORELIB_CFI_1(out)(out_desc, put, left)) { ret = (-5); goto inf_leave; } } } while (0);
                 copy = state->wsize - state->offset;
                 if (copy < left) {
                     from = put + copy;
@@ -609,7 +666,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
     /* Write leftover output and return unused input */
   inf_leave:
     if (left < state->wsize) {
-        if (out(out_desc, state->window, state->wsize - left) &&
+        if (LORELIB_CFI_1(out)(out_desc, state->window, state->wsize - left) &&
             ret == Z_STREAM_END)
             ret = Z_BUF_ERROR;
     }
@@ -621,8 +678,14 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
 int ZEXPORT inflateBackEnd(z_streamp strm) {
     if (strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)
         return Z_STREAM_ERROR;
-    ZFREE(strm, strm->state);
+    LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state));
     strm->state = Z_NULL;
     Tracev((stderr, "inflate: end\n"));
     return Z_OK;
 }
+
+//
+// Original code end
+//
+
+

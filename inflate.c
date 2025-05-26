@@ -1,3 +1,55 @@
+/****************************************************************************
+** CFI wrapped code from reading C file 'inflate__cfic_tmp_new__.c'
+**
+** Created by: Lorelei CFI compiler
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+//
+// CFI declarations begin
+//
+enum LoreLib_Constants {
+    LoreLib_CFI_Count = 4,
+};
+
+struct LoreLib_HostLibraryContext {
+    void *AddressBoundary;
+
+    void (*HrtSetThreadCallback)(void *callback);
+    void *HrtPThreadCreate;
+    void *HrtPThreadExit;
+
+    void *CFIs[LoreLib_CFI_Count];
+};
+
+__attribute__((visibility("default"))) struct LoreLib_HostLibraryContext LoreLib_HostLibCtx;
+
+#define LORELIB_CFI(INDEX, FP)                                                                       \
+    ({                                                                                               \
+        typedef __typeof__(FP) _LORELIB_CFI_TYPE;                                                    \
+        void *_lorelib_cfi_ret = (void *) (FP);                                                      \
+        if ((unsigned long) _lorelib_cfi_ret < (unsigned long) LoreLib_HostLibCtx.AddressBoundary) { \
+            LoreLib_HostLibCtx.HrtSetThreadCallback(_lorelib_cfi_ret);                               \
+            _lorelib_cfi_ret = (void *) LoreLib_HostLibCtx.CFIs[INDEX - 1];                          \
+        }                                                                                            \
+        (_LORELIB_CFI_TYPE) _lorelib_cfi_ret;                                                        \
+    })
+
+// decl: void (void *, void *)
+#define LORELIB_CFI_3(FP) LORELIB_CFI(3, FP)
+
+// decl: void *(void *, unsigned int, unsigned int)
+#define LORELIB_CFI_4(FP) LORELIB_CFI(4, FP)
+
+//
+// CFI declarations end
+//
+
+
+//
+// Original code begin
+//
 /* inflate.c -- zlib decompression
  * Copyright (C) 1995-2022 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -165,7 +217,7 @@ int ZEXPORT inflateReset2(z_streamp strm, int windowBits) {
     if (windowBits && (windowBits < 8 || windowBits > 15))
         return Z_STREAM_ERROR;
     if (state->window != Z_NULL && state->wbits != (unsigned)windowBits) {
-        ZFREE(strm, state->window);
+        LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(state->window));
         state->window = Z_NULL;
     }
 
@@ -200,7 +252,7 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
         strm->zfree = zcfree;
 #endif
     state = (struct inflate_state FAR *)
-            ZALLOC(strm, 1, sizeof(struct inflate_state));
+            LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (1), (sizeof(struct inflate_state)));
     if (state == Z_NULL) return Z_MEM_ERROR;
     Tracev((stderr, "inflate: allocated\n"));
     strm->state = (struct internal_state FAR *)state;
@@ -209,7 +261,7 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
     state->mode = HEAD;     /* to pass state test in inflateReset2() */
     ret = inflateReset2(strm, windowBits);
     if (ret != Z_OK) {
-        ZFREE(strm, state);
+        LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(state));
         strm->state = Z_NULL;
     }
     return ret;
@@ -374,8 +426,7 @@ local int updatewindow(z_streamp strm, const Bytef *end, unsigned copy) {
     /* if it hasn't been done already, allocate space for the window */
     if (state->window == Z_NULL) {
         state->window = (unsigned char FAR *)
-                        ZALLOC(strm, 1U << state->wbits,
-                               sizeof(unsigned char));
+                        LORELIB_CFI_4((((strm)->zalloc)))((strm)->opaque, (1U << state->wbits), (sizeof(unsigned char)));
         if (state->window == Z_NULL) return 1;
     }
 
@@ -1268,8 +1319,8 @@ int ZEXPORT inflateEnd(z_streamp strm) {
     if (inflateStateCheck(strm))
         return Z_STREAM_ERROR;
     state = (struct inflate_state FAR *)strm->state;
-    if (state->window != Z_NULL) ZFREE(strm, state->window);
-    ZFREE(strm, strm->state);
+    if (state->window != Z_NULL) LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(state->window));
+    LORELIB_CFI_3((((strm)->zfree)))((strm)->opaque, (voidpf)(strm->state));
     strm->state = Z_NULL;
     Tracev((stderr, "inflate: end\n"));
     return Z_OK;
@@ -1449,14 +1500,14 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source) {
 
     /* allocate space */
     copy = (struct inflate_state FAR *)
-           ZALLOC(source, 1, sizeof(struct inflate_state));
+           LORELIB_CFI_4((((source)->zalloc)))((source)->opaque, (1), (sizeof(struct inflate_state)));
     if (copy == Z_NULL) return Z_MEM_ERROR;
     window = Z_NULL;
     if (state->window != Z_NULL) {
         window = (unsigned char FAR *)
-                 ZALLOC(source, 1U << state->wbits, sizeof(unsigned char));
+                 LORELIB_CFI_4((((source)->zalloc)))((source)->opaque, (1U << state->wbits), (sizeof(unsigned char)));
         if (window == Z_NULL) {
-            ZFREE(source, copy);
+            LORELIB_CFI_3((((source)->zfree)))((source)->opaque, (voidpf)(copy));
             return Z_MEM_ERROR;
         }
     }
@@ -1524,3 +1575,9 @@ unsigned long ZEXPORT inflateCodesUsed(z_streamp strm) {
     state = (struct inflate_state FAR *)strm->state;
     return (unsigned long)(state->next - state->codes);
 }
+
+//
+// Original code end
+//
+
+
